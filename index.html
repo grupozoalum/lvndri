@@ -1,0 +1,359 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0f172a">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<title>Punto de venta · Relevadores</title>
+<style>
+  :root {
+    --bg: #f4f5f7;
+    --panel: #ffffff;
+    --text: #111827;
+    --muted: #6b7280;
+    --line: #e5e7eb;
+    --on: #16a34a;
+    --on-bg: #dcfce7;
+    --off-bg: #ffffff;
+    --pend: #d97706;
+    --pend-bg: #fef3c7;
+    --danger: #dc2626;
+    --accent: #1d4ed8;
+    --shadow: 0 1px 2px rgba(0,0,0,.06), 0 2px 8px rgba(0,0,0,.05);
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #0b1020;
+      --panel: #121a2e;
+      --text: #e5e7eb;
+      --muted: #94a3b8;
+      --line: #23304d;
+      --on: #22c55e;
+      --on-bg: #0f2e1d;
+      --off-bg: #121a2e;
+      --pend: #f59e0b;
+      --pend-bg: #33270b;
+      --danger: #ef4444;
+      --accent: #60a5fa;
+      --shadow: none;
+    }
+  }
+  * { box-sizing: border-box; }
+  html, body { margin: 0; background: var(--bg); color: var(--text);
+    font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body { min-height: 100vh; -webkit-tap-highlight-color: transparent; }
+  button, input { font: inherit; color: inherit; }
+  .hidden { display: none !important; }
+
+  /* ---------- Login ---------- */
+  #login { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+  .card { background: var(--panel); border: 1px solid var(--line); border-radius: 16px;
+    box-shadow: var(--shadow); padding: 24px; width: 100%; max-width: 380px; }
+  .card h1 { margin: 0 0 4px; font-size: 1.35rem; }
+  .card p { margin: 0 0 20px; color: var(--muted); font-size: .95rem; }
+  label { display: block; font-size: .85rem; color: var(--muted); margin: 12px 0 6px; }
+  input[type=email], input[type=password], input[type=text] {
+    width: 100%; padding: 12px 14px; border: 1px solid var(--line); border-radius: 10px;
+    background: var(--bg); outline: none; }
+  input:focus { border-color: var(--accent); }
+  .btn { border: 0; border-radius: 10px; padding: 12px 16px; cursor: pointer; font-weight: 600;
+    background: var(--accent); color: #fff; }
+  .btn:disabled { opacity: .6; cursor: default; }
+  .btn.block { width: 100%; margin-top: 18px; }
+  .error { color: var(--danger); font-size: .9rem; min-height: 1.2em; margin-top: 10px; }
+
+  /* ---------- App ---------- */
+  header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
+    padding: 12px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
+  header h1 { font-size: 1.1rem; margin: 0; flex: 1; min-width: 160px; }
+  .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
+    font-size: .85rem; font-weight: 600; background: var(--bg); border: 1px solid var(--line); }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
+  .pill.ok .dot { background: var(--on); }
+  .pill.bad .dot { background: var(--danger); }
+  .linkbtn { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
+    cursor: pointer; font-size: .85rem; }
+
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+  .banner { background: var(--pend-bg); color: var(--text); border: 1px solid var(--pend);
+    border-radius: 12px; padding: 10px 14px; font-size: .9rem; }
+
+  .acciones { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .big { border: 0; border-radius: 14px; padding: 18px 12px; font-size: 1.05rem; font-weight: 700;
+    cursor: pointer; box-shadow: var(--shadow); }
+  .big.on { background: var(--on); color: #fff; }
+  .big.off { background: var(--danger); color: #fff; }
+  .big:active, .rele:active { transform: scale(.97); }
+
+  .manual { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 14px; }
+  .manual .fila { display: flex; gap: 8px; flex-wrap: wrap; }
+  .manual input { flex: 1 1 220px; }
+  .manual .btn { flex: 0 0 auto; }
+  .btn.verde { background: var(--on); }
+  .btn.rojo { background: var(--danger); }
+  .btn.gris { background: var(--muted); }
+  .ayuda { color: var(--muted); font-size: .82rem; margin-top: 8px; }
+
+  .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(6, 1fr); } }
+  @media (max-width: 640px) { .grid { grid-template-columns: repeat(4, 1fr); } }
+  @media (max-width: 360px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+
+  .rele { position: relative; aspect-ratio: 1 / 1; border-radius: 14px; border: 2px solid var(--line);
+    background: var(--off-bg); cursor: pointer; display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 2px; box-shadow: var(--shadow);
+    transition: background .15s, border-color .15s; padding: 4px; }
+  .rele .num { font-size: 1.6rem; font-weight: 800; line-height: 1; }
+  .rele .txt { font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .rele.on { background: var(--on-bg); border-color: var(--on); }
+  .rele.on .txt { color: var(--on); }
+  .rele.pend { border-color: var(--pend); background: var(--pend-bg); }
+  .rele.pend .txt { color: var(--pend); }
+  .rele.pend::after { content: ""; position: absolute; top: 8px; right: 8px; width: 8px; height: 8px;
+    border-radius: 50%; background: var(--pend); animation: pulso 1s infinite; }
+  @keyframes pulso { 50% { opacity: .2; } }
+
+  .resumen { color: var(--muted); font-size: .9rem; }
+
+  #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #111827; color: #fff;
+    padding: 10px 16px; border-radius: 10px; font-size: .9rem; opacity: 0; pointer-events: none;
+    transition: opacity .2s; max-width: calc(100% - 32px); z-index: 10; }
+  #toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ============ LOGIN ============ -->
+<section id="login" class="hidden">
+  <form class="card" id="formLogin">
+    <h1>Punto de venta</h1>
+    <p>Inicia sesión para controlar los relevadores.</p>
+    <label for="email">Correo</label>
+    <input id="email" type="email" autocomplete="username" required>
+    <label for="pass">Contraseña</label>
+    <input id="pass" type="password" autocomplete="current-password" required>
+    <button class="btn block" id="btnEntrar" type="submit">Entrar</button>
+    <div class="error" id="errLogin"></div>
+  </form>
+</section>
+
+<!-- ============ APP ============ -->
+<section id="app" class="hidden">
+  <header>
+    <h1>Control de relevadores</h1>
+    <span class="pill" id="pillEsp"><span class="dot"></span><span id="txtEsp">Revisando…</span></span>
+    <button class="linkbtn" id="btnSalir">Salir</button>
+  </header>
+
+  <main>
+    <div class="banner hidden" id="bannerOffline">
+      La ESP32 no está conectada. Los cambios quedan guardados y se aplicarán cuando se conecte.
+    </div>
+
+    <div class="acciones">
+      <button class="big on" id="btnTodosOn">Encender todos</button>
+      <button class="big off" id="btnTodosOff">Apagar todos</button>
+    </div>
+
+    <div class="manual">
+      <label for="lista" style="margin-top:0">Escribir relevadores</label>
+      <div class="fila">
+        <input id="lista" type="text" inputmode="numeric" placeholder="Ej. 1, 4, 10-12">
+        <button class="btn verde" id="btnListaOn">Encender</button>
+        <button class="btn rojo" id="btnListaOff">Apagar</button>
+        <button class="btn gris" id="btnListaSolo" title="Enciende solo estos y apaga los demás">Solo estos</button>
+      </div>
+      <div class="ayuda">Separa con comas y usa guiones para rangos. “Solo estos” apaga todos los demás.</div>
+    </div>
+
+    <div class="resumen" id="resumen">Cargando…</div>
+    <div class="grid" id="grid"></div>
+  </main>
+</section>
+
+<div id="toast"></div>
+
+<script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+  import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
+  import { getFirestore, doc, onSnapshot, runTransaction }
+    from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+  // ================== CONFIGURACIÓN ==================
+  const firebaseConfig = {
+    apiKey: "AIzaSyDFfOj6fG03sXcuLda2lxjjuHKxK6Ls-QU",
+    authDomain: "lavanderia1-5ab23.firebaseapp.com",
+    projectId: "lavanderia1-5ab23",
+    storageBucket: "lavanderia1-5ab23.firebasestorage.app",
+    messagingSenderId: "226624818227",
+    appId: "1:226624818227:web:05297ac8fbaf9a1b40a746",
+    measurementId: "G-LZ5KKTKV2D"
+  };
+  const COLECCION = "control", DOCUMENTO = "reles";   // documento control/reles
+  const N = 32;
+  const LIMITE_OFFLINE_MS = 90000;   // si la ESP32 no da señal en 90 s se marca desconectada
+
+  const app = initializeApp(firebaseConfig);
+  const auth = getAuth(app);
+  const db = getFirestore(app);
+  const refDoc = doc(db, COLECCION, DOCUMENTO);
+
+  const $ = (id) => document.getElementById(id);
+  const VACIO = "0".repeat(N);
+  const valida = (s) => typeof s === "string" && /^[01]{32}$/.test(s);
+
+  let deseado = VACIO, real = VACIO, ultimoLatido = 0;
+  let desuscribir = null;
+
+  // ================== UI ==================
+  function toast(msg) {
+    const t = $("toast");
+    t.textContent = msg;
+    t.classList.add("show");
+    clearTimeout(toast._t);
+    toast._t = setTimeout(() => t.classList.remove("show"), 2200);
+  }
+
+  function construirGrid() {
+    const g = $("grid");
+    g.innerHTML = "";
+    for (let i = 1; i <= N; i++) {
+      const b = document.createElement("button");
+      b.className = "rele";
+      b.id = "r" + i;
+      b.innerHTML = `<span class="num">${i}</span><span class="txt">Apagado</span>`;
+      b.addEventListener("click", () => alternar(i));
+      g.appendChild(b);
+    }
+  }
+
+  function pintar() {
+    let encendidos = [], pendientes = 0;
+    for (let i = 0; i < N; i++) {
+      const b = $("r" + (i + 1));
+      const on = deseado[i] === "1";
+      const pend = deseado[i] !== real[i];
+      b.classList.toggle("on", on && !pend);
+      b.classList.toggle("pend", pend);
+      b.querySelector(".txt").textContent = pend ? (on ? "Encendiendo" : "Apagando") : (on ? "Encendido" : "Apagado");
+      b.setAttribute("aria-pressed", on ? "true" : "false");
+      if (on) encendidos.push(i + 1);
+      if (pend) pendientes++;
+    }
+    $("resumen").textContent =
+      (encendidos.length ? `Encendidos (${encendidos.length}): ${encendidos.join(", ")}` : "Todos apagados") +
+      (pendientes ? ` · ${pendientes} por confirmar` : "");
+  }
+
+  function pintarEsp() {
+    const enLinea = ultimoLatido && (Date.now() - ultimoLatido) < LIMITE_OFFLINE_MS;
+    const p = $("pillEsp");
+    p.classList.toggle("ok", !!enLinea);
+    p.classList.toggle("bad", !enLinea);
+    $("txtEsp").textContent = enLinea ? "ESP32 en línea" : "ESP32 sin conexión";
+    $("bannerOffline").classList.toggle("hidden", !!enLinea);
+  }
+  setInterval(pintarEsp, 5000);
+
+  // ================== ACCIONES ==================
+  // Cambia el estado de forma segura aunque haya varias pantallas abiertas.
+  async function cambiar(fn, mensaje) {
+    try {
+      await runTransaction(db, async (t) => {
+        const snap = await t.get(refDoc);
+        const actual = snap.exists() ? snap.data().estado : null;
+        const arr = (valida(actual) ? actual : VACIO).split("");
+        fn(arr);
+        t.set(refDoc, { estado: arr.join("") }, { merge: true });
+      });
+      if (mensaje) toast(mensaje);
+    } catch (e) {
+      console.error(e);
+      toast("No se pudo enviar: " + (e.code || e.message));
+    }
+  }
+
+  function alternar(n) {
+    const enc = deseado[n - 1] !== "1";
+    cambiar((a) => { a[n - 1] = enc ? "1" : "0"; }, `Relevador ${n} ${enc ? "encendido" : "apagado"}`);
+  }
+
+  // "1, 4, 10-12" -> [1,4,10,11,12]
+  function parsearLista(texto) {
+    const nums = new Set();
+    const partes = texto.split(/[\s,;]+/).filter(Boolean);
+    if (!partes.length) throw new Error("Escribe al menos un número.");
+    for (const p of partes) {
+      const m = p.match(/^(\d+)(?:-(\d+))?$/);
+      if (!m) throw new Error(`"${p}" no es válido.`);
+      let a = +m[1], b = m[2] ? +m[2] : a;
+      if (a > b) [a, b] = [b, a];
+      if (a < 1 || b > N) throw new Error(`Usa números del 1 al ${N}.`);
+      for (let i = a; i <= b; i++) nums.add(i);
+    }
+    return [...nums].sort((x, y) => x - y);
+  }
+
+  function aplicarLista(modo) {
+    let nums;
+    try { nums = parsearLista($("lista").value); }
+    catch (e) { toast(e.message); return; }
+    const txt = nums.join(", ");
+    if (modo === "on") cambiar((a) => nums.forEach((n) => a[n - 1] = "1"), `Encendidos: ${txt}`);
+    if (modo === "off") cambiar((a) => nums.forEach((n) => a[n - 1] = "0"), `Apagados: ${txt}`);
+    if (modo === "solo") cambiar((a) => { a.fill("0"); nums.forEach((n) => a[n - 1] = "1"); }, `Solo encendidos: ${txt}`);
+  }
+
+  $("btnTodosOn").onclick = () => cambiar((a) => a.fill("1"), "Todos encendidos");
+  $("btnTodosOff").onclick = () => cambiar((a) => a.fill("0"), "Todos apagados");
+  $("btnListaOn").onclick = () => aplicarLista("on");
+  $("btnListaOff").onclick = () => aplicarLista("off");
+  $("btnListaSolo").onclick = () => aplicarLista("solo");
+  $("lista").addEventListener("keydown", (e) => { if (e.key === "Enter") aplicarLista("on"); });
+
+  // ================== SESIÓN ==================
+  $("formLogin").addEventListener("submit", async (e) => {
+    e.preventDefault();
+    $("errLogin").textContent = "";
+    $("btnEntrar").disabled = true;
+    try {
+      await signInWithEmailAndPassword(auth, $("email").value.trim(), $("pass").value);
+    } catch (err) {
+      $("errLogin").textContent =
+        err.code === "auth/invalid-credential" || err.code === "auth/wrong-password" || err.code === "auth/user-not-found"
+          ? "Correo o contraseña incorrectos."
+          : "No se pudo iniciar sesión: " + err.code;
+    } finally {
+      $("btnEntrar").disabled = false;
+    }
+  });
+  $("btnSalir").onclick = () => signOut(auth);
+
+  function escuchar() {
+    desuscribir = onSnapshot(refDoc, (snap) => {
+      const d = snap.exists() ? snap.data() : {};
+      deseado = valida(d.estado) ? d.estado : VACIO;
+      real = valida(d.real) ? d.real : VACIO;
+      ultimoLatido = d.online && d.online.toMillis ? d.online.toMillis() : 0;
+      pintar();
+      pintarEsp();
+    }, (e) => {
+      console.error(e);
+      toast("Sin permiso para leer Firestore. Revisa las reglas.");
+    });
+  }
+
+  onAuthStateChanged(auth, (user) => {
+    if (desuscribir) { desuscribir(); desuscribir = null; }
+    $("login").classList.toggle("hidden", !!user);
+    $("app").classList.toggle("hidden", !user);
+    if (user) { escuchar(); pintar(); pintarEsp(); }
+  });
+
+  construirGrid();
+</script>
+</body>
+</html>
