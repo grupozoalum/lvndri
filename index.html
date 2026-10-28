@@ -67,7 +67,8 @@
   /* ---------- App ---------- */
   header { position: sticky; top: 0; z-index: 5; background: var(--panel); border-bottom: 1px solid var(--line);
     padding: 12px 16px; display: flex; align-items: center; gap: 12px; flex-wrap: wrap; }
-  header h1 { font-size: 1.1rem; margin: 0; flex: 1; min-width: 160px; }
+  header h1 { font-size: 1.1rem; margin: 0; flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  @media (max-width: 480px) { header { flex-wrap: nowrap; gap: 8px; } header h1 { font-size: 1rem; } .pill { padding: 6px 10px; } }
   .pill { display: inline-flex; align-items: center; gap: 8px; padding: 6px 12px; border-radius: 999px;
     font-size: .85rem; font-weight: 600; background: var(--bg); border: 1px solid var(--line); }
   .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--muted); }
@@ -76,7 +77,7 @@
   .linkbtn { background: none; border: 1px solid var(--line); border-radius: 999px; padding: 6px 12px;
     cursor: pointer; font-size: .85rem; }
 
-  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; gap: 16px; }
+  main { max-width: 1100px; margin: 0 auto; padding: 16px; display: grid; grid-template-columns: minmax(0, 1fr); gap: 16px; }
   .banner { background: var(--pend-bg); color: var(--text); border: 1px solid var(--pend);
     border-radius: 12px; padding: 10px 14px; font-size: .9rem; }
 
@@ -96,17 +97,18 @@
   .btn.gris { background: var(--muted); }
   .ayuda { color: var(--muted); font-size: .82rem; margin-top: 8px; }
 
-  .grid { display: grid; grid-template-columns: repeat(8, 1fr); gap: 10px; }
-  @media (max-width: 900px) { .grid { grid-template-columns: repeat(6, 1fr); } }
-  @media (max-width: 640px) { .grid { grid-template-columns: repeat(4, 1fr); } }
-  @media (max-width: 360px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+  .grid { display: grid; grid-template-columns: repeat(8, minmax(0, 1fr)); gap: 10px; }
+  @media (max-width: 900px) { .grid { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+  @media (max-width: 640px) { .grid { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 8px; } .grid .rele .txt { font-size: .62rem; letter-spacing: 0; } }
+  @media (max-width: 360px) { .grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 
   .rele { position: relative; aspect-ratio: 1 / 1; border-radius: 14px; border: 2px solid var(--line);
     background: var(--off-bg); cursor: pointer; display: flex; flex-direction: column;
     align-items: center; justify-content: center; gap: 2px; box-shadow: var(--shadow);
     transition: background .15s, border-color .15s; padding: 4px; }
   .rele .num { font-size: 1.6rem; font-weight: 800; line-height: 1; }
-  .rele .txt { font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em; }
+  .rele .txt { font-size: .72rem; color: var(--muted); font-weight: 600; text-transform: uppercase; letter-spacing: .03em;
+    max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
   .rele.on { background: var(--on-bg); border-color: var(--on); }
   .rele.on .txt { color: var(--on); }
   .rele.pend { border-color: var(--pend); background: var(--pend-bg); }
@@ -116,6 +118,18 @@
   @keyframes pulso { 50% { opacity: .2; } }
 
   .resumen { color: var(--muted); font-size: .9rem; }
+
+  details.wifi { background: var(--panel); border: 1px solid var(--line); border-radius: 14px; padding: 0 14px; }
+  details.wifi summary { cursor: pointer; padding: 14px 0; font-weight: 600; list-style: none; display: flex; justify-content: space-between; gap: 8px; }
+  details.wifi summary::-webkit-details-marker { display: none; }
+  details.wifi summary::after { content: "▾"; color: var(--muted); }
+  details.wifi[open] summary::after { content: "▴"; }
+  details.wifi .cuerpo { padding-bottom: 14px; }
+  .info { font-size: .9rem; color: var(--muted); margin: 0 0 6px; overflow-wrap: anywhere; }
+  .aviso { font-size: .9rem; border-radius: 10px; padding: 8px 12px; background: var(--bg); border: 1px solid var(--line); margin: 8px 0; }
+  .fila2 { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  @media (max-width: 480px) { .fila2 { grid-template-columns: 1fr; } }
+  .btn.borde { background: transparent; color: var(--text); border: 1px solid var(--line); }
 
   #toast { position: fixed; left: 50%; bottom: 20px; transform: translateX(-50%); background: #111827; color: #fff;
     padding: 10px 16px; border-radius: 10px; font-size: .9rem; opacity: 0; pointer-events: none;
@@ -142,7 +156,7 @@
 <!-- ============ APP ============ -->
 <section id="app" class="hidden">
   <header>
-    <h1>Control de relevadores</h1>
+    <h1>Relevadores</h1>
     <span class="pill" id="pillEsp"><span class="dot"></span><span id="txtEsp">Revisando…</span></span>
     <button class="linkbtn" id="btnSalir">Salir</button>
   </header>
@@ -170,6 +184,35 @@
 
     <div class="resumen" id="resumen">Cargando…</div>
     <div class="grid" id="grid"></div>
+
+    <details class="wifi" id="panelWifi">
+      <summary><span>Red WiFi de la ESP32</span></summary>
+      <div class="cuerpo">
+        <p class="info">Red actual: <b id="wifiInfo">—</b></p>
+        <div class="aviso hidden" id="wifiAviso"></div>
+        <form id="formWifi" autocomplete="off">
+          <div class="fila2">
+            <div>
+              <label for="wSsid">Nombre de la red nueva</label>
+              <input id="wSsid" type="text" required autocapitalize="off" spellcheck="false">
+            </div>
+            <div>
+              <label for="wPass">Contraseña</label>
+              <input id="wPass" type="password" autocomplete="new-password">
+            </div>
+          </div>
+          <button class="btn block" type="submit" id="btnWifi">Cambiar red</button>
+        </form>
+        <p class="ayuda">La ESP32 prueba la red nueva. Si no conecta, o no tiene internet en 2 minutos,
+          regresa sola a la red anterior. Escribe el nombre exactamente igual (mayúsculas y espacios cuentan).</p>
+        <div class="fila2" style="margin-top:10px">
+          <button class="btn borde" id="btnPortal" type="button">Abrir modo configuración</button>
+          <button class="btn borde" id="btnCerrarPortal" type="button">Cerrar modo configuración</button>
+        </div>
+        <p class="ayuda">El modo configuración crea la red <b>Reles-Config</b> (contraseña <b>lavanderia</b>) por 10 minutos,
+          para configurarla desde un celular en el local, entrando a 192.168.4.1.</p>
+      </div>
+    </details>
   </main>
 </section>
 
@@ -179,7 +222,7 @@
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
   import { getAuth, onAuthStateChanged, signInWithEmailAndPassword, signOut }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-auth.js";
-  import { getFirestore, doc, onSnapshot, runTransaction }
+  import { getFirestore, doc, onSnapshot, runTransaction, setDoc }
     from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
 
   // ================== CONFIGURACIÓN ==================
@@ -238,7 +281,7 @@
       const pend = deseado[i] !== real[i];
       b.classList.toggle("on", on && !pend);
       b.classList.toggle("pend", pend);
-      b.querySelector(".txt").textContent = pend ? (on ? "Encendiendo" : "Apagando") : (on ? "Encendido" : "Apagado");
+      b.querySelector(".txt").textContent = pend ? "Enviando" : (on ? "Prendido" : "Apagado");
       b.setAttribute("aria-pressed", on ? "true" : "false");
       if (on) encendidos.push(i + 1);
       if (pend) pendientes++;
@@ -314,6 +357,29 @@
   $("btnListaSolo").onclick = () => aplicarLista("solo");
   $("lista").addEventListener("keydown", (e) => { if (e.key === "Enter") aplicarLista("on"); });
 
+  // ================== WIFI ==================
+  async function ordenWifi(datos, mensaje) {
+    try {
+      await setDoc(refDoc, { ...datos, wifiAviso: "Enviando orden a la ESP32…" }, { merge: true });
+      toast(mensaje);
+    } catch (e) {
+      console.error(e);
+      toast("No se pudo enviar: " + (e.code || e.message));
+    }
+  }
+
+  $("formWifi").addEventListener("submit", (e) => {
+    e.preventDefault();
+    const ssid = $("wSsid").value.trim();
+    if (!ssid) return;
+    if (!confirm(`¿Cambiar la ESP32 a la red "${ssid}"?`)) return;
+    ordenWifi({ wifiOrden: "cambiar", wifiSsid: ssid, wifiPass: $("wPass").value },
+              "Orden enviada. La ESP32 la aplica en unos segundos.");
+    $("wPass").value = "";
+  });
+  $("btnPortal").onclick = () => ordenWifi({ wifiOrden: "portal" }, "Abriendo modo configuración…");
+  $("btnCerrarPortal").onclick = () => ordenWifi({ wifiOrden: "cerrarPortal" }, "Cerrando modo configuración…");
+
   // ================== SESIÓN ==================
   $("formLogin").addEventListener("submit", async (e) => {
     e.preventDefault();
@@ -338,6 +404,10 @@
       deseado = valida(d.estado) ? d.estado : VACIO;
       real = valida(d.real) ? d.real : VACIO;
       ultimoLatido = d.online && d.online.toMillis ? d.online.toMillis() : 0;
+      $("wifiInfo").textContent = d.wifiInfo || "—";
+      const aviso = d.wifiAviso || "";
+      $("wifiAviso").textContent = aviso;
+      $("wifiAviso").classList.toggle("hidden", !aviso);
       pintar();
       pintarEsp();
     }, (e) => {
